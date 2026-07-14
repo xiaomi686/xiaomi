@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园综合服务站</title>
+<style>
+/* ===== VibeCoding 创意项目赛 — 燃、酷、好玩 ===== */
+:root{
+  --bg:#0a0e1a;
+  --bg-soft:#111827;
+  --surface:#1a1f35;
+  --surface-2:#1f2940;
+  --border:rgba(0,200,255,.12);
+  --border-strong:rgba(0,200,255,.25);
+  --text-1:#e8f0ff;
+  --text-2:#8899cc;
+  --text-3:#5a6a8a;
+  --accent:#00c8ff;
+  --accent-2:#a855f7;
+  --accent-3:#facc15;
+  --good:#22d3ee;
+  --warn:#fbbf24;
+  --bad:#f87171;
+  --grad:linear-gradient(135deg,#00c8ff,#a855f7);
+  --grad-warm:linear-gradient(135deg,#00c8ff,#22d3ee,#facc15);
+  --grad-soft:linear-gradient(135deg,#0a1640,#1a0a3e);
+  --grad-neon:linear-gradient(135deg,#00c8ff,#f472b6,#facc15);
+  --radius:16px;
+  --radius-sm:10px;
+  --radius-lg:24px;
+  --shadow:0 4px 20px rgba(0,200,255,.08),0 12px 40px rgba(0,0,0,.3);
+  --shadow-lg:0 12px 48px rgba(0,200,255,.12),0 30px 80px rgba(0,0,0,.4);
+  --font-sans:'Inter','Noto Sans SC','PingFang SC',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-display:'Inter','Noto Sans SC','PingFang SC',sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text-1);
+  font-family:var(--font-sans);font-weight:400;line-height:1.6;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+img,svg{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+
+/* ===== 幻灯片系统 ===== */
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--bg)}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:72px 96px;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+  transform:translateX(30px);
+  overflow:hidden;
+}
+.slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0);z-index:2}
+.slide.is-prev{transform:translateX(-30px)}
+
+/* ===== 排印 ===== */
+.eyebrow{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3)}
+.kicker{font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:8px;text-shadow:0 0 20px rgba(0,200,255,.2)}
+h1.title,.h1{font-family:var(--font-display);font-size:64px;line-height:1.08;font-weight:800;letter-spacing:-.03em;margin:0 0 16px;color:var(--text-1)}
+h2.title,.h2{font-family:var(--font-display);font-size:46px;line-height:1.12;font-weight:700;letter-spacing:-.02em;margin:0 0 12px}
+h3,.h3{font-size:28px;line-height:1.2;font-weight:600;margin:0 0 10px}
+h4,.h4{font-size:20px;line-height:1.3;font-weight:600;margin:0 0 6px}
+.lede{font-size:20px;line-height:1.55;color:var(--text-2);max-width:64ch}
+.dim{color:var(--text-2)}
+.dim2{color:var(--text-3)}
+.gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.gradient-warm{background:var(--grad-warm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* ===== 布局 ===== */
+.stack>*+*{margin-top:14px}
+.row{display:flex;gap:20px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+.grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+
+/* ===== 卡片 ===== */
+.card{background:var(--surface);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.card-soft{background:var(--surface-2);border-radius:var(--radius);padding:24px;border:1px solid var(--border)}
+.card-glass{background:rgba(255,255,255,.7);backdrop-filter:blur(12px);border-radius:var(--radius);padding:28px 24px;border:1px solid var(--border)}
+.icon-box{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px}
+
+/* ===== 标签 ===== */
+.tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:500;background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
+.tag-blue{background:rgba(37,99,235,.08);color:var(--accent);border-color:rgba(37,99,235,.2)}
+.tag-purple{background:rgba(124,58,237,.08);color:var(--accent-2);border-color:rgba(124,58,237,.2)}
+.tag-good{background:rgba(16,185,129,.08);color:var(--good);border-color:rgba(16,185,129,.2)}
+.tag-warm{background:rgba(245,158,11,.08);color:var(--accent-3);border-color:rgba(245,158,11,.2)}
+
+/* ===== 进度 & 页脚 ===== */
+.deck-footer{position:fixed;bottom:24px;left:96px;right:96px;display:flex;align-items:center;justify-content:space-between;z-index:100;pointer-events:none}
+.progress-bar{flex:1;height:3px;background:var(--border);border-radius:2px;margin:0 20px;overflow:hidden}
+.progress-fill{height:100%;background:var(--grad-warm);border-radius:2px;transition:width .6s var(--ease);width:0%}
+.slide-num{font-size:13px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.deck-header{position:fixed;top:0;left:0;right:0;padding:14px 96px;z-index:100;pointer-events:none;display:flex;justify-content:space-between;align-items:center}
+.deck-header .brand{font-size:14px;font-weight:700;background:var(--grad-warm);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ===== 统计数字 ===== */
+.stat-num{font-size:44px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.stat-label{font-size:14px;color:var(--text-3);margin-top:4px;font-weight:500}
+
+/* ===== 背景色块 ===== */
+.bg-blue{background:rgba(37,99,235,.08)}
+.bg-cyan{background:rgba(6,182,212,.08)}
+.bg-purple{background:rgba(124,58,237,.08)}
+.bg-orange{background:rgba(245,158,11,.08)}
+.bg-green{background:rgba(16,185,129,.08)}
+.bg-pink{background:rgba(236,72,153,.08)}
+
+/* ===== 动画系统 ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes zoomPop{0%{opacity:0;transform:scale(.5)}70%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+@keyframes flipIn{0%{opacity:0;transform:perspective(600px) rotateX(-20deg)}100%{opacity:1;transform:perspective(600px) rotateX(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes floatSlow{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 20px rgba(37,99,235,.2)}50%{box-shadow:0 0 40px rgba(37,99,235,.4)}}
+@keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes bounceIn{0%{opacity:0;transform:scale(.3)}50%{transform:scale(1.05)}70%{transform:scale(.9)}100%{opacity:1;transform:scale(1)}}
+@keyframes countUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes borderGlow{0%,100%{border-color:rgba(37,99,235,.2)}50%{border-color:rgba(37,99,235,.5)}}
+@keyframes waveMove{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes rotateSlow{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* 入场动画 */
+.is-active .anim-fade{animation:fadeIn .7s ease both}
+.is-active .anim-fade-up{animation:fadeUp .6s ease both}
+.is-active .anim-fade-down{animation:fadeDown .6s ease both}
+.is-active .anim-scale{animation:scaleIn .6s ease both}
+.is-active .anim-slide-left{animation:slideLeft .6s ease both}
+.is-active .anim-slide-right{animation:slideRight .6s ease both}
+.is-active .anim-zoom-pop{animation:zoomPop .6s ease both}
+.is-active .anim-flip-in{animation:flipIn .7s ease both}
+.is-active .anim-bounce-in{animation:bounceIn .7s ease both}
+.is-active .anim-d1{animation-delay:.12s}
+.is-active .anim-d2{animation-delay:.24s}
+.is-active .anim-d3{animation-delay:.36s}
+.is-active .anim-d4{animation-delay:.48s}
+.is-active .anim-d5{animation-delay:.6s}
+.is-active .anim-d6{animation-delay:.72s}
+.is-active .anim-d7{animation-delay:.84s}
+.is-active .anim-d8{animation-delay:.96s}
+.is-active .anim-d9{animation-delay:1.08s}
+.is-active .anim-d10{animation-delay:1.2s}
+
+/* 持续动画 */
+.anim-float{animation:float 3s ease-in-out infinite}
+.anim-float-slow{animation:floatSlow 4s ease-in-out infinite}
+.anim-pulse-glow{animation:pulseGlow 2s ease-in-out infinite}
+.anim-shimmer{background-size:200% auto;animation:shimmer 3s linear infinite}
+.anim-gradient-shift{background-size:200% 200%;animation:gradientShift 4s ease infinite}
+.anim-bounce{animation:bounceIn .8s ease}
+.anim-rotate-slow{animation:rotateSlow 20s linear infinite}
+
+/* ===== 创赛特殊装饰 ===== */
+.decor-circle{position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.decor-dot{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;z-index:0}
+
+/* ===== Banner ===== */
+.competition-banner{display:inline-block;padding:6px 18px;background:var(--grad-neon);border-radius:30px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.1em;text-shadow:0 1px 10px rgba(0,200,255,.3)}
+
+/* ===== Timeline ===== */
+.timeline-item{display:flex;gap:16px;margin-bottom:18px;align-items:flex-start}
+.timeline-marker{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;background:var(--grad);box-shadow:0 0 20px rgba(0,200,255,.3)}
+.timeline-content{flex:1}
+.timeline-title{font-weight:600;font-size:17px;color:var(--text-1)}
+.timeline-desc{font-size:14px;color:var(--text-2);line-height:1.5}
+
+/* ===== 数据条 ===== */
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{width:80px;font-size:14px;font-weight:500;color:var(--text-2);text-align:right}
+.bar-track{flex:1;height:24px;background:#1a1f35;border-radius:12px;overflow:hidden}
+.bar-fill{height:100%;border-radius:12px;transition:width 1s var(--ease)}
+.is-active .bar-fill{width:var(--w)!important}
+.bar-value{width:36px;font-size:14px;font-weight:700;color:var(--text-1);text-align:left}
+
+/* ===== Hero Slide ===== */
+.hero-slide{background:linear-gradient(135deg,#0a0e1a 0%,#140620 50%,#0a0e1a 100%)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,.04) 1px,transparent 1px);background-size:60px 60px;z-index:0}
+.hero-glow-1{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,255,.15),transparent);top:-15%;right:-10%;filter:blur(80px);z-index:0}
+.hero-glow-2{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.12),transparent);bottom:-10%;left:-5%;filter:blur(60px);z-index:0}
+.hero-glow-3{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.1),transparent);top:40%;left:40%;filter:blur(50px);z-index:0}
+
+/* ===== 对比表格 ===== */
+.comp-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:var(--radius);border:1px solid var(--border);font-size:15px}
+.comp-table th{padding:14px 18px;text-align:left;font-weight:600;background:#111827;border-bottom:1px solid var(--border);color:var(--text-1)}
+.comp-table th:first-child{border-radius:var(--radius-sm) 0 0 0}
+.comp-table th:last-child{border-radius:0 var(--radius-sm) 0 0}
+.comp-table td{padding:12px 18px;border-bottom:1px solid var(--border);vertical-align:middle}
+.comp-table tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- ======== 1. 封面 ======== -->
+  <section class="slide is-active hero-slide" data-slide="1">
+    <div class="hero-grid"></div>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <div class="hero-glow-3"></div>
+    <div style="position:relative;z-index:1;max-width:800px">
+      <div class="competition-banner anim-shimmer anim-fade" style="margin-bottom:16px">🎨 VibeCoding 创意项目赛</div>
+      <h1 class="title anim-fade-up" style="color:#fff;font-size:78px;letter-spacing:-.04em">
+        <span style="background:linear-gradient(135deg,#00c8ff,#a855f7,#facc15);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">校园综合服务站</span>
+      </h1>
+      <p class="anim-fade-up anim-d1" style="font-size:22px;color:rgba(255,255,255,.6);max-width:600px;line-height:1.6;margin-top:8px">
+        AI 驱动的一站式校园生活服务平台<br>
+        让每一件校园小事都有温暖的解决方案
+      </p>
+      <div class="row anim-fade-up anim-d2" style="margin-top:36px;gap:12px;flex-wrap:wrap">
+        <span class="tag" style="background:rgba(0,200,255,.15);color:rgba(255,255,255,.9);border-color:rgba(0,200,255,.4);font-size:14px;padding:6px 16px">🤖 AI 智能驱动</span>
+        <span class="tag" style="background:rgba(168,85,247,.15);color:rgba(255,255,255,.9);border-color:rgba(168,85,247,.4);font-size:14px;padding:6px 16px">📱 多端覆盖</span>
+        <span class="tag" style="background:rgba(250,204,21,.15);color:rgba(255,255,255,.9);border-color:rgba(250,204,21,.4);font-size:14px;padding:6px 16px">🎯 校园刚需</span>
+      </div>
+      <div class="anim-fade-up anim-d3" style="margin-top:20px;font-size:12px;color:rgba(0,200,255,.15);font-family:monospace;letter-spacing:4px">/* made with ❤️ & vibe */</div>
+    </div>
+  </section>
+
+  <!-- ======== 2. 团队介绍 ======== -->
+  <section class="slide" data-slide="2" style="background:#0d1225;background-size:200% 200%">
+    <div style="position:absolute;font-size:80px;opacity:.08;top:10%;right:8%;pointer-events:none;animation:float 4s ease-in-out infinite">💻</div>
+    <div style="position:absolute;font-size:50px;opacity:.05;bottom:15%;left:5%;pointer-events:none;animation:float 5s ease-in-out infinite">⚡</div>
+    <div class="kicker anim-fade">OUR TEAM</div>
+    <h2 class="title anim-fade-up">我们是<span class="gradient-text">VibeCoding 创意团队</span></h2>
+    <p class="lede anim-fade-up anim-d1">爱搞事的同学 · 用代码让校园生活更酷</p>
+    <div class="grid-3" style="margin-top:28px">
+      <div class="card anim-scale anim-d2" style="text-align:center;padding:28px 16px;border:1px solid rgba(0,200,255,.15)">
+        <div style="width:68px;height:68px;border-radius:50%;background:var(--grad);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700;box-shadow:0 0 30px rgba(0,200,255,.2)">米</div>
+        <h4 style="color:var(--text-1)">小米</h4>
+        <p style="font-size:14px;color:var(--accent);font-weight:600">全栈开发 · 产品设计</p>
+        <p style="font-size:13px;color:var(--text-3);margin-top:4px">软件学院 · 1年 Web 经验</p>
+      </div>
+      <div class="card anim-scale anim-d3" style="text-align:center;padding:28px 16px;border:1px solid rgba(168,85,247,.15)">
+        <div style="width:68px;height:68px;border-radius:50%;background:var(--grad);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700;box-shadow:0 0 30px rgba(168,85,247,.2)">米</div>
+        <h4 style="color:var(--text-1)">小米</h4>
+        <p style="font-size:14px;color:var(--accent-2);font-weight:600">前端开发 · 小程序专家</p>
+        <p style="font-size:13px;color:var(--text-3);margin-top:4px">软件学院 · 微信生态经验</p>
+      </div>
+      <div class="card anim-scale anim-d4" style="text-align:center;padding:28px 16px;border:1px solid rgba(250,204,21,.15)">
+        <div style="width:68px;height:68px;border-radius:50%;background:var(--grad);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;font-weight:700;box-shadow:0 0 30px rgba(250,204,21,.2)">米</div>
+        <h4 style="color:var(--text-1)">小米</h4>
+        <p style="font-size:14px;color:var(--accent-3);font-weight:600">AI 开发 · 后端架构</p>
+        <p style="font-size:13px;color:var(--text-3);margin-top:4px">软件学院 · 大模型应用</p>
+      </div>
+    </div>
+    <div class="card-soft anim-fade-up anim-d5" style="margin-top:16px;text-align:center;padding:16px;border:1px solid rgba(0,200,255,.1)">
+      <span style="font-size:14px;color:var(--text-2)">代码就是我们的超能力 ✨</span>
+    </div>
+  </section>
+
+  <!-- ======== 3. 市场痛点 ======== -->
+  <section class="slide" data-slide="3">
+    <div class="kicker anim-fade">MARKET PAIN POINTS</div>
+    <h2 class="title anim-fade-up">校园生活四大<span class="gradient-text">未解决的痛点</span></h2>
+    <p class="lede anim-fade-up anim-d1" style="margin-bottom:20px">调研覆盖 300+ 学生，这些需求真实存在</p>
+    <div class="grid-2" style="gap:20px">
+      <div class="card-soft anim-fade-up anim-d2" style="border-left:4px solid var(--accent)">
+        <div class="row" style="gap:12px">
+          <span style="font-size:36px">📦</span>
+          <div>
+            <h4 style="margin:0">闲置交易难</h4>
+            <p style="font-size:14px;color:var(--text-2);margin:2px 0">78% 的学生有二手交易需求，但缺乏安全便捷的平台</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-soft anim-fade-up anim-d3" style="border-left:4px solid var(--accent-2)">
+        <div class="row" style="gap:12px">
+          <span style="font-size:36px">🔑</span>
+          <div>
+            <h4 style="margin:0">物品找回难</h4>
+            <p style="font-size:14px;color:var(--text-2);margin:2px 0">每年校园卡丢失超千张，找回率不足 30%</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-soft anim-fade-up anim-d4" style="border-left:4px solid var(--accent-3)">
+        <div class="row" style="gap:12px">
+          <span style="font-size:36px">📋</span>
+          <div>
+            <h4 style="margin:0">跑腿效率低</h4>
+            <p style="font-size:14px;color:var(--text-2);margin:2px 0">取快递、带饭等琐事日均消耗 20+ 分钟</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-soft anim-fade-up anim-d5" style="border-left:4px solid var(--good)">
+        <div class="row" style="gap:12px">
+          <span style="font-size:36px">💬</span>
+          <div>
+            <h4 style="margin:0">信息太分散</h4>
+            <p style="font-size:14px;color:var(--text-2);margin:2px 0">二手/求助/活动信息散落各群，检索困难</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 4. 解决方案 ======== -->
+  <section class="slide" data-slide="4">
+    <div style="position:absolute;font-size:120px;opacity:.04;top:5%;right:5%;pointer-events:none;animation:float 6s ease-in-out infinite">✨</div>
+    <div style="position:absolute;font-size:60px;opacity:.03;bottom:10%;left:8%;pointer-events:none;animation:float 4s ease-in-out infinite">🎯</div>
+    <div class="kicker anim-fade">OUR SOLUTION</div>
+    <h2 class="title anim-fade-up"><span class="gradient-text">一站式平台</span> + <span class="gradient-warm">AI 赋能</span></h2>
+    <p class="lede anim-fade-up anim-d1" style="margin-bottom:16px">用技术整合校园需求，让服务触手可及</p>
+    <div class="grid-3">
+      <div class="card anim-fade-up anim-d2" style="text-align:center">
+        <div class="icon-box" style="margin:0 auto 10px;background:rgba(37,99,235,.1)">📦</div>
+        <h4>二手市场</h4>
+        <p style="font-size:14px;color:var(--text-2)">发布 · 浏览 · 私信<br>校园面交安全可靠</p>
+      </div>
+      <div class="card anim-fade-up anim-d3" style="text-align:center">
+        <div class="icon-box" style="margin:0 auto 10px;background:rgba(6,182,212,.1)">🔍</div>
+        <h4>失物招领</h4>
+        <p style="font-size:14px;color:var(--text-2)">丢失 · 捡到 · 匹配<br>全平台联动寻找</p>
+      </div>
+      <div class="card anim-fade-up anim-d4" style="text-align:center">
+        <div class="icon-box" style="margin:0 auto 10px;background:rgba(124,58,237,.1)">📋</div>
+        <h4>任务委托</h4>
+        <p style="font-size:14px;color:var(--text-2)">发任务 · 接任务 · 结算<br>有偿互助高效便捷</p>
+      </div>
+      <div class="card anim-fade-up anim-d5" style="text-align:center">
+        <div class="icon-box" style="margin:0 auto 10px;background:rgba(245,158,11,.1)">💬</div>
+        <h4>问答社区</h4>
+        <p style="font-size:14px;color:var(--text-2)">提问 · 回答 · 打赏<br>知识互助共同成长</p>
+      </div>
+      <div class="card anim-fade-up anim-d6" style="text-align:center">
+        <div class="icon-box" style="margin:0 auto 10px;background:rgba(16,185,129,.1)">🎉</div>
+        <h4>校园活动</h4>
+        <p style="font-size:14px;color:var(--text-2)">发布 · 报名 · 管理<br>丰富课余生活</p>
+      </div>
+      <div class="card anim-zoom-pop anim-d7" style="text-align:center;border:2px solid rgba(37,99,235,.3);background:rgba(37,99,235,.03);animation:borderGlow 2s ease-in-out infinite">
+        <div class="icon-box anim-float" style="margin:0 auto 10px;background:rgba(236,72,153,.1)">🤖</div>
+        <h4 style="color:var(--accent)">AI 智能助手</h4>
+        <p style="font-size:14px;color:var(--text-2);font-weight:500">✨ 自然语言 · 一键发布</p>
+        <span class="tag tag-blue anim-pulse-glow">核心创新</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 5. AI 创新亮点 ======== -->
+  <section class="slide" data-slide="5">
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a0e1a 0%,#140620 100%);z-index:0"></div>
+    <div style="position:relative;z-index:1;max-width:650px">
+      <div style="position:absolute;font-size:180px;opacity:.04;bottom:-5%;right:-2%;pointer-events:none;animation:rotateSlow 30s linear infinite">⚡</div>
+    <div style="position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.06),transparent);top:15%;left:10%;pointer-events:none;animation:pulseGlow 3s ease-in-out infinite"></div>
+    <div class="kicker anim-fade">CORE INNOVATION</div>
+      <h2 class="title anim-fade-up" style="font-size:54px">🤖 AI 智能助手<br><span class="gradient-text">"小米" — 用自然语言操作平台</span></h2>
+      <div class="card anim-fade-up anim-d1" style="background:rgba(15,23,50,.85);backdrop-filter:blur(12px);margin-top:16px;padding:24px 28px;border:1px solid rgba(0,200,255,.2)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <p style="font-size:15px;font-weight:600;color:var(--text-1);margin-bottom:8px">💬 智能对话</p>
+            <p style="font-size:14px;color:var(--text-2)">实时查询平台数据<br>自然语言搜索内容<br>引导用户操作使用</p>
+          </div>
+          <div>
+            <p style="font-size:15px;font-weight:600;color:var(--accent);margin-bottom:8px">🚀 一键发布</p>
+            <p style="font-size:14px;color:var(--text-2)">说句话 → AI 理解 → 结构化数据<br>→ 用户确认 → 自动发布<br><strong style="color:var(--good)">全国首创校园 AI 发布能力</strong></p>
+          </div>
+        </div>
+      </div>
+      <div class="card-soft anim-fade-up anim-d2" style="margin-top:16px;padding:16px 24px">
+        <div class="row" style="gap:12px;flex-wrap:wrap">
+          <span style="font-size:14px;font-weight:500;color:var(--text-1)">技术实现：</span>
+          <span class="tag tag-blue">DeepSeek API</span>
+          <span class="tag tag-purple">Function Calling</span>
+          <span class="tag tag-good">实时数据注入</span>
+          <span class="tag tag-warm">工具调用链</span>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;right:80px;top:50%;transform:translateY(-50%);font-size:180px;opacity:.08;pointer-events:none;z-index:1">🤖</div>
+  </section>
+
+  <!-- ======== 6. 技术架构 ======== -->
+  <section class="slide" data-slide="6">
+    <div class="kicker anim-fade">TECH ARCHITECTURE</div>
+    <h2 class="title anim-fade-up">轻量务实的技术<span class="gradient-text">架构</span></h2>
+    <div class="grid-2" style="margin-top:20px;gap:24px">
+      <div>
+        <div class="card anim-fade-up anim-d1" style="margin-bottom:16px;">
+          <div class="row" style="gap:8px;margin-bottom:12px">
+            <span style="font-size:24px">🎨</span>
+            <h4 style="margin:0">前端</h4>
+          </div>
+          <div class="row wrap" style="gap:6px">
+            <span class="tag tag-blue">HTML5</span>
+            <span class="tag tag-blue">CSS3</span>
+            <span class="tag tag-blue">Vanilla JS</span>
+            <span class="tag tag-blue">微信小程序</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-2);margin-top:8px">原生开发 · 零框架依赖 · 加载极速</p>
+        </div>
+        <div class="card anim-fade-up anim-d2">
+          <div class="row" style="gap:8px;margin-bottom:12px">
+            <span style="font-size:24px">⚙️</span>
+            <h4 style="margin:0">后端</h4>
+          </div>
+          <div class="row wrap" style="gap:6px">
+            <span class="tag tag-blue">Node.js</span>
+            <span class="tag tag-blue">Express</span>
+            <span class="tag tag-blue">MySQL</span>
+            <span class="tag tag-blue">JWT</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-2);margin-top:8px">RESTful API · 连接池 · 中间件鉴权</p>
+        </div>
+      </div>
+      <div>
+        <div class="card anim-fade-up anim-d3" style="margin-bottom:16px;border:2px solid rgba(124,58,237,.2)">
+          <div class="row" style="gap:8px;margin-bottom:12px">
+            <span style="font-size:24px">🤖</span>
+            <h4 style="margin:0;color:var(--accent-2)">AI 引擎</h4>
+          </div>
+          <div class="row wrap" style="gap:6px">
+            <span class="tag tag-purple">DeepSeek</span>
+            <span class="tag tag-purple">Function Calling</span>
+            <span class="tag tag-good">Prompt 工程</span>
+            <span class="tag tag-blue">Tool 定义</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-2);margin-top:8px;line-height:1.6">
+            <strong>创新点：</strong>通过 Function Calling 实现 AI 直接操作数据库，<br>将自然语言一键转化为内容发布。
+          </p>
+        </div>
+        <div class="card-soft anim-fade-up anim-d4" style="padding:16px 20px">
+          <div class="row" style="gap:8px;margin-bottom:6px">
+            <span style="font-size:20px">📱</span>
+            <h4 style="margin:0;font-size:16px">多端覆盖</h4>
+          </div>
+          <div class="row wrap" style="gap:6px">
+            <span class="tag">Web 端</span>
+            <span class="tag">微信小程序</span>
+          </div>
+          <p style="font-size:13px;color:var(--text-2);margin-top:6px">一套后端，多端适配</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 7. 运营数据 ======== -->
+  <section class="slide" data-slide="7">
+    <div class="kicker anim-fade">TRACTION</div>
+    <h2 class="title anim-fade-up">运营数据与<span class="gradient-text">用户反馈</span></h2>
+    <div class="grid-4" style="margin-top:24px">
+      <div class="card anim-scale anim-d1" style="text-align:center;padding:24px 12px">
+        <div class="stat-num gradient-text"><span data-count="200">0</span>+</div>
+        <div class="stat-label">注册用户</div>
+      </div>
+      <div class="card anim-scale anim-d2" style="text-align:center;padding:24px 12px">
+        <div class="stat-num gradient-text"><span data-count="500">0</span>+</div>
+        <div class="stat-label">发布内容</div>
+      </div>
+      <div class="card anim-scale anim-d3" style="text-align:center;padding:24px 12px">
+        <div class="stat-num gradient-text"><span data-count="85">0</span>%</div>
+        <div class="stat-label">用户满意度</div>
+      </div>
+      <div class="card anim-scale anim-d4" style="text-align:center;padding:24px 12px">
+        <div class="stat-num gradient-text"><span data-count="8">0</span>min</div>
+        <div class="stat-label">日均使用时长</div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:20px;gap:20px">
+      <div class="card-soft anim-fade-up anim-d3">
+        <h4 style="margin-bottom:12px">🔥 功能热度排行</h4>
+        <div class="bar-chart">
+          <div class="bar-row"><span class="bar-label">二手市场</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:linear-gradient(90deg,#2563eb,#7c3aed);--w:85%"></div></div><span class="bar-value">85%</span></div>
+          <div class="bar-row"><span class="bar-label">失物招领</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:linear-gradient(90deg,#06b6d4,#2563eb);--w:62%"></div></div><span class="bar-value">62%</span></div>
+          <div class="bar-row"><span class="bar-label">AI 助手</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:linear-gradient(90deg,#7c3aed,#c026d3);--w:48%"></div></div><span class="bar-value">48%</span></div>
+          <div class="bar-row"><span class="bar-label">任务委托</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:linear-gradient(90deg,#f59e0b,#d97706);--w:35%"></div></div><span class="bar-value">35%</span></div>
+        </div>
+      </div>
+      <div class="card-soft anim-fade-up anim-d4">
+        <h4 style="margin-bottom:10px">💬 用户评价</h4>
+        <div style="font-size:14px;color:var(--text-2);line-height:1.7">
+          <p>"AI 发布功能太方便了，说句话就帮我挂上去了"<br><span style="font-size:12px;color:var(--text-3)">—— 计算机学院 李同学</span></p>
+          <p>"前天丢了校园卡，发上去两小时就有人联系我"<br><span style="font-size:12px;color:var(--text-3)">—— 经管学院 王同学</span></p>
+          <p>"毕业季用这个卖了好多东西，比在群里发方便多了"<br><span style="font-size:12px;color:var(--text-3)">—— 外国语学院 张同学</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 8. 竞品分析 ======== -->
+  <section class="slide" data-slide="8">
+    <div class="kicker anim-fade">COMPETITIVE ANALYSIS</div>
+    <h2 class="title anim-fade-up">与现有方案<span class="gradient-text">对比优势</span></h2>
+    <div style="margin-top:20px">
+      <table class="comp-table anim-fade-up anim-d1">
+        <thead>
+          <tr>
+            <th style="width:22%">对比维度</th>
+            <th style="width:26%;text-align:center;color:var(--accent);font-weight:700">🌟 校园综合服务站</th>
+            <th style="width:26%;text-align:center;color:var(--text-3)">微信群/朋友圈</th>
+            <th style="width:26%;text-align:center;color:var(--text-3)">闲鱼等平台</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-weight:500">多功能整合</td><td style="text-align:center;color:var(--good)">✅ 六大功能一体</td><td style="text-align:center;color:var(--bad)">❌ 分散零乱</td><td style="text-align:center;color:var(--warn)">⚠️ 仅二手</td></tr>
+          <tr><td style="font-weight:500">AI 智能助手</td><td style="text-align:center;color:var(--good)">✅ 核心创新</td><td style="text-align:center;color:var(--bad)">❌ 无</td><td style="text-align:center;color:var(--bad)">❌ 无</td></tr>
+          <tr><td style="font-weight:500">校园身份认证</td><td style="text-align:center;color:var(--good)">✅ 学号实名</td><td style="text-align:center;color:var(--warn)">⚠️ 无保障</td><td style="text-align:center;color:var(--bad)">❌ 社会平台</td></tr>
+          <tr><td style="font-weight:500">隐私安全</td><td style="text-align:center;color:var(--good)">✅ 站内私信</td><td style="text-align:center;color:var(--bad)">❌ 需加好友</td><td style="text-align:center;color:var(--good)">✅ 有</td></tr>
+          <tr><td style="font-weight:500">交易成本</td><td style="text-align:center;color:var(--good)">✅ 免费/低费率</td><td style="text-align:center;color:var(--good)">✅ 免费</td><td style="text-align:center;color:var(--warn)">⚠️ 有手续费</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card anim-fade-up anim-d2" style="margin-top:16px;background:var(--grad-soft);padding:16px 24px;border:none">
+      <div class="row" style="gap:12px">
+        <span style="font-size:24px">🎯</span>
+        <div>
+          <span style="font-weight:700;font-size:16px">核心壁垒：</span>
+          <span style="font-size:15px;color:var(--text-2)">AI + 校园场景的深度结合，功能整合带来的网络效应，学号认证构建的可信环境</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 9. 商业模式 ======== -->
+  <section class="slide" data-slide="9">
+    <div class="kicker anim-fade">VIBE MODEL</div>
+    <h2 class="title anim-fade-up">搞事也要<span class="gradient-text">可持续</span></h2>
+    <p class="lede anim-fade-up anim-d1" style="margin-bottom:16px">免费基础服务 + 增值付费 · 让好项目走得更远</p>
+    <div class="grid-2" style="gap:20px">
+      <div>
+        <div class="card anim-fade-up anim-d2" style="margin-bottom:12px;padding:20px">
+          <div class="row" style="gap:12px">
+            <span style="font-size:32px">💰</span>
+            <div><h4 style="margin:0">交易佣金</h4><p style="font-size:14px;color:var(--text-2);margin:2px 0">二手 1% · 任务 5% · 远低于竞品</p></div>
+          </div>
+        </div>
+        <div class="card anim-fade-up anim-d3" style="margin-bottom:12px;padding:20px">
+          <div class="row" style="gap:12px">
+            <span style="font-size:32px">📢</span>
+            <div><h4 style="margin:0">校内广告</h4><p style="font-size:14px;color:var(--text-2);margin:2px 0">精准触达本校学生 · 商家投放</p></div>
+          </div>
+        </div>
+        <div class="card anim-fade-up anim-d4" style="padding:20px">
+          <div class="row" style="gap:12px">
+            <span style="font-size:32px">🏆</span>
+            <div><h4 style="margin:0">增值服务</h4><p style="font-size:14px;color:var(--text-2);margin:2px 0">置顶/加精付费 · 数据分析报告</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="card anim-fade-up anim-d3" style="background:var(--grad-soft);border:none;padding:24px">
+        <h4 style="margin-bottom:12px">📊 收入预测（首年）</h4>
+        <div style="font-size:36px;font-weight:800" class="gradient-text">¥50,000+</div>
+        <p style="font-size:14px;color:var(--text-2);margin-top:4px">基于 2000 活跃用户的保守估计</p>
+        <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span>交易佣金</span><span style="font-weight:600">60%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:6px"><span>广告收入</span><span style="font-weight:600">25%</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px"><span>增值服务</span><span style="font-weight:600">15%</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 10. 发展计划 ======== -->
+  <section class="slide" data-slide="10">
+    <div class="kicker anim-fade">VIBE ROADMAP</div>
+    <h2 class="title anim-fade-up">从校园<span class="gradient-text">走向更大的世界</span></h2>
+    <div style="margin-top:24px;max-width:680px">
+      <div class="timeline-item anim-fade-up anim-d1">
+        <div class="timeline-marker" style="background:var(--good)">✓</div>
+        <div class="timeline-content">
+          <div class="timeline-title">Phase 1 · 已完成</div>
+          <div class="timeline-desc">平台搭建、5 大功能上线、AI 智能助手发布、一键发布能力</div>
+        </div>
+      </div>
+      <div class="timeline-item anim-fade-up anim-d2">
+        <div class="timeline-marker" style="background:var(--accent)">2</div>
+        <div class="timeline-content">
+          <div class="timeline-title">Phase 2 · 2026 Q3</div>
+          <div class="timeline-desc">支付集成（校园卡/微信支付）、信用评分体系、运营推广</div>
+        </div>
+      </div>
+      <div class="timeline-item anim-fade-up anim-d3">
+        <div class="timeline-marker" style="background:var(--accent-2)">3</div>
+        <div class="timeline-content">
+          <div class="timeline-title">Phase 3 · 2026 Q4</div>
+          <div class="timeline-desc">多校独立部署、校园大使推广、本地化运营</div>
+        </div>
+      </div>
+      <div class="timeline-item anim-fade-up anim-d4">
+        <div class="timeline-marker" style="background:var(--accent-3)">4</div>
+        <div class="timeline-content">
+          <div class="timeline-title">Phase 4 · 2027</div>
+          <div class="timeline-desc">开放平台 API、生态建设、数据分析服务、全国推广</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-soft anim-fade-up anim-d5" style="margin-top:20px;padding:16px 24px;max-width:680px">
+      <div class="row" style="gap:16px;flex-wrap:wrap">
+        <span style="font-weight:600;font-size:15px">🎯 愿景：</span>
+        <span style="font-size:15px;color:var(--text-2)">成为中国最大的校园生活服务平台，服务 1000+ 所高校，1000 万+ 大学生</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 11. 社会价值 ======== -->
+  <section class="slide" data-slide="11">
+    <div class="kicker anim-fade">VIBE IMPACT</div>
+    <h2 class="title anim-fade-up">用代码创造<span class="gradient-text">价值</span></h2>
+    <div class="grid-2" style="margin-top:24px;gap:24px">
+      <div class="card anim-scale anim-d1" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">🌱</div>
+        <h4>绿色环保</h4>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.6">促进二手物品循环利用<br>每年减少校园废弃物 30%+</p>
+      </div>
+      <div class="card anim-scale anim-d2" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">❤️</div>
+        <h4>互助友爱</h4>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.6">失物招领传递温暖<br>任务委托培养互助文化</p>
+      </div>
+      <div class="card anim-scale anim-d3" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">💡</div>
+        <h4>技术赋能</h4>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.6">AI 技术降低使用门槛<br>让每个人都能享受科技便利</p>
+      </div>
+      <div class="card anim-scale anim-d4" style="text-align:center;padding:32px 20px">
+        <div style="font-size:48px;margin-bottom:12px">🎓</div>
+        <h4>学生创业</h4>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.6">大学生自主创业项目<br>培养实践能力与商业思维</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== 12. 结束页 ======== -->
+  <section class="slide hero-slide" data-slide="12">
+    <div class="hero-grid"></div>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <div style="position:relative;z-index:1;text-align:center;max-width:700px;margin:0 auto">
+      <div class="competition-banner anim-shimmer anim-fade" style="margin-bottom:16px">· 感谢聆听 · </div>
+      <h1 class="title anim-fade-up" style="color:#fff;font-size:68px">
+        <span style="background:linear-gradient(135deg,#00c8ff,#a855f7,#facc15);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent">让校园生活更简单</span>
+      </h1>
+      <p class="anim-fade-up anim-d1" style="font-size:20px;color:rgba(255,255,255,.5);margin-top:12px">校园综合服务站 · VibeCoding 创意团队</p>
+      <div class="anim-fade-up anim-d2" style="margin-top:40px">
+        <div class="row" style="justify-content:center;gap:32px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-size:14px;color:rgba(0,200,255,.4)">📞 联系</div>
+            <div style="font-size:16px;color:rgba(255,255,255,.7);font-weight:600">18338061812</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:14px;color:rgba(0,200,255,.4)">📧 邮箱</div>
+            <div style="font-size:16px;color:rgba(255,255,255,.7);font-weight:600">2481846661@qq.com</div>
+          </div>
+          <div style="text-align:center">
+          
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<canvas id="particleCanvas" style="position:fixed;inset:0;z-index:50;pointer-events:none"></canvas>
+
+<!-- ===== 页眉页脚 ===== -->
+<div class="deck-header">
+  <span class="brand">🏫 校园综合服务站 · VibeCoding 创意项目赛</span>
+  <span class="slide-num" id="slideNum">1 / 12</span>
+  <span style="font-size:11px;color:rgba(0,200,255,.2);font-family:monospace;letter-spacing:2px;margin-left:12px">// vibeCoding_2026</span>
+</div>
+<div class="deck-footer">
+  <span class="slide-num">← / →</span>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <span class="slide-num" id="pageIndicator">01</span>
+  <span style="font-size:10px;color:rgba(0,200,255,.15);font-family:monospace;margin-left:16px;letter-spacing:2px">#vibeCoding</span>
+</div>
+
+<script>
+(function() {
+  'use strict';
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var current = 0;
+  var progressFill = document.getElementById('progressFill');
+  var slideNum = document.getElementById('slideNum');
+  var pageIndicator = document.getElementById('pageIndicator');
+  var autoHint = document.getElementById('autoHint');
+
+  // ==================== 导航核心 ====================
+  function goTo(idx) {
+    if (idx < 0) idx = 0;
+    if (idx >= total) idx = total - 1;
+    if (idx === current) return;
+    slides.forEach(function(s, i) {
+      s.classList.toggle('is-active', i === idx);
+      s.classList.toggle('is-prev', i < idx);
+    });
+    current = idx;
+    progressFill.style.width = ((idx + 1) / total * 100) + '%';
+    slideNum.textContent = (idx + 1) + ' / ' + total;
+    pageIndicator.textContent = String(idx + 1).padStart(2, '0');
+    window.location.hash = '/' + (idx + 1);
+    // 触发数字动画
+    triggerCountUp(idx);
+  }
+
+  function next() { if (current < total - 1) goTo(current + 1); }
+  function prev() { if (current > 0) goTo(current - 1); }
+
+  // ==================== 粒子动画 ====================
+  var canvas = document.getElementById('particleCanvas');
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var mouseX = -1000, mouseY = -1000;
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function createParticles(count) {
+    particles = [];
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        r: Math.random() * 2.5 + 1,
+        alpha: Math.random() * 0.4 + 0.1,
+        color: ['#60a5fa','#a78bfa','#fbbf24','#34d399','#22d3ee'][Math.floor(Math.random() * 5)]
+      });
+    }
+  }
+  createParticles(80);
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      // 鼠标互动
+      var dx = mouseX - p.x, dy = mouseY - p.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 150) {
+        p.vx -= dx / dist * 0.02;
+        p.vy -= dy / dist * 0.02;
+      }
+      p.x += p.vx;
+      p.y += p.vy;
+      // 边界循环
+      if (p.x < -10) p.x = canvas.width + 10;
+      if (p.x > canvas.width + 10) p.x = -10;
+      if (p.y < -10) p.y = canvas.height + 10;
+      if (p.y > canvas.height + 10) p.y = -10;
+      // 绘制
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = p.alpha;
+      ctx.fill();
+      // 连接线
+      for (var j = i + 1; j < particles.length; j++) {
+        var p2 = particles[j];
+        var d2x = p.x - p2.x, d2y = p.y - p2.y;
+        var d2 = Math.sqrt(d2x*d2x + d2y*d2y);
+        if (d2 < 120) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = 'rgba(96,165,250,' + (0.08 * (1 - d2/120)) + ')';
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  document.addEventListener('mousemove', function(e) { mouseX = e.clientX; mouseY = e.clientY; });
+  document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 0) { mouseX = e.touches[0].clientX; mouseY = e.touches[0].clientY; }
+  });
+
+  // ==================== 数字计数动画 ====================
+  function triggerCountUp(slideIdx) {
+    var slide = slides[slideIdx];
+    if (!slide) return;
+    var statEls = slide.querySelectorAll('[data-count]');
+    statEls.forEach(function(el) {
+      var target = parseInt(el.getAttribute('data-count'), 10);
+      if (isNaN(target)) return;
+      var currentNum = 0;
+      var step = Math.ceil(target / 40);
+      el.textContent = '0';
+      var interval = setInterval(function() {
+        currentNum += step;
+        if (currentNum >= target) { currentNum = target; clearInterval(interval); }
+        el.textContent = currentNum.toLocaleString();
+      }, 25);
+    });
+  }
+
+  // ==================== 彩带动画(最后一页) ====================
+  function createConfetti() {
+    var lastSlide = slides[total - 1];
+    if (!lastSlide.classList.contains('is-active')) return;
+    var colors = ['#60a5fa','#a78bfa','#fbbf24','#34d399','#f472b6','#fb923c'];
+    for (var i = 0; i < 40; i++) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;width:' + (Math.random()*8+4) + 'px;height:' + (Math.random()*12+6) + 'px;background:' + colors[Math.floor(Math.random()*colors.length)] + ';left:' + (Math.random()*100) + 'vw;top:-20px;border-radius:3px;z-index:200;pointer-events:none;';
+      document.body.appendChild(el);
+      var x = parseFloat(el.style.left);
+      var rot = Math.random() * 720;
+      var duration = Math.random() * 2 + 2;
+      var startTime = Date.now();
+      function animateConfetti() {
+        var elapsed = (Date.now() - startTime) / 1000;
+        if (elapsed > duration) { el.remove(); return; }
+        var progress = elapsed / duration;
+        el.style.top = (progress * window.innerHeight + 10) + 'px';
+        el.style.left = (x + Math.sin(progress * 15) * 40) + 'px';
+        el.style.transform = 'rotate(' + (rot * progress) + 'deg)';
+        el.style.opacity = 1 - progress * 0.7;
+        requestAnimationFrame(animateConfetti);
+      }
+      setTimeout(animateConfetti, Math.random() * 500);
+    }
+  }
+
+  // 监听最后一页激活
+  var origGoTo = goTo;
+  goTo = function(idx) {
+    origGoTo(idx);
+    if (idx === total - 1) setTimeout(createConfetti, 600);
+  };
+
+  // ==================== 键盘 & 交互 ====================
+  document.addEventListener('keydown', function(e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    if (e.key === 'f' || e.key === 'F') { 
+      e.preventDefault();
+      if (document.fullscreenElement) document.exitFullscreen(); 
+      else document.documentElement.requestFullscreen(); 
+    }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('.deck-header') || e.target.closest('.deck-footer')) return;
+    var w = window.innerWidth;
+    if (e.clientX > w * 0.7) { next(); }
+    else if (e.clientX < w * 0.3) { prev(); }
+  });
+
+  var touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', function(e) { 
+    touchStartX = e.changedTouches[0].screenX; 
+    touchStartY = e.changedTouches[0].screenY;
+  });
+  document.addEventListener('touchend', function(e) {
+    var diffX = touchStartX - e.changedTouches[0].screenX;
+    var diffY = touchStartY - e.changedTouches[0].screenY;
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) { 
+      if (diffX > 0) next(); else prev();
+    }
+  });
+
+  // ==================== 初始化 ====================
+  function checkHash() {
+    var m = /#\/(\d+)/.exec(window.location.hash);
+    if (m) { var idx = parseInt(m[1], 10) - 1; if (idx >= 0 && idx < total) goTo(idx); }
+  }
+  window.addEventListener('hashchange', checkHash);
+  if (window.location.hash) checkHash();
+
+  progressFill.style.width = ((current + 1) / total * 100) + '%';
+  // 首页数字动画
+  setTimeout(function() { triggerCountUp(0); }, 400);
+})();
+</script>
+</body>
+</html>
